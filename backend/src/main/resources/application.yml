@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: formb360-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/formb360
+    username: formb360
+    password: formb360
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    default-property-inclusion: non_null
+
+logging:
+  level:
+    com.kkfiretech.formb360: DEBUG
