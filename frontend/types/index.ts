@@ -1,8 +1,9 @@
 export type ComplianceType =
-  | "FORM_B"
+  | "FORM_A" // Fire Safety Certificate
+  | "FORM_B" // Annual Fire Safety Audit Report
+  | "FORM_N" // Fire NOC
   | "AMC_COMPREHENSIVE"
   | "AMC_NON_COMPREHENSIVE"
-  | "FIRE_NOC"
   | "OTHER";
 
 export type ComplianceStatus = "VALID" | "DUE_SOON" | "EXPIRED";
