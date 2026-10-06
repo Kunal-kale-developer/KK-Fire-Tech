@@ -11,6 +11,7 @@ export default function Navbar() {
           <Link href="/dashboard" className="hover:text-brand">Dashboard</Link>
           <Link href="/buildings" className="hover:text-brand">Buildings</Link>
           <Link href="/stakeholders" className="hover:text-brand">Stakeholders</Link>
+          <Link href="/outreach" className="hover:text-brand">Outreach</Link>
         </nav>
       </div>
     </header>

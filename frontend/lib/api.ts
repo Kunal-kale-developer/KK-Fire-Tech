@@ -1,4 +1,4 @@
-import { Building, ComplianceItem, DashboardItem, Stakeholder } from "@/types";
+import { Building, ComplianceItem, DashboardItem, Stakeholder, Lead, LeadActivity, LeadStage, ActivityType } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api";
 
@@ -40,5 +40,20 @@ export const api = {
     list: () => request<Stakeholder[]>("/stakeholders"),
     create: (payload: Partial<Stakeholder>) =>
       request<Stakeholder>("/stakeholders", { method: "POST", body: JSON.stringify(payload) }),
+  },
+    leads: {
+    list: () => request<Lead[]>("/leads"),
+    queue: () => request<Lead[]>("/leads/queue"),
+    create: (payload: Partial<Lead>) =>
+      request<Lead>("/leads", { method: "POST", body: JSON.stringify(payload) }),
+    changeStage: (id: number, stage: LeadStage) =>
+      request<Lead>(`/leads/${id}/stage`, { method: "PUT", body: JSON.stringify({ stage }) }),
+    logActivity: (
+      id: number,
+      payload: { type: ActivityType; outcome?: string; nextFollowUpDate?: string }
+    ) =>
+      request<LeadActivity>(`/leads/${id}/activities`, { method: "POST", body: JSON.stringify(payload) }),
+          bulkCreate: (payload: Partial<Lead>[]) =>
+      request<Lead[]>("/leads/bulk", { method: "POST", body: JSON.stringify(payload) }),
   },
 };
