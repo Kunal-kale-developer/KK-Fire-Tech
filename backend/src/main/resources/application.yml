@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/formb360
-    username: formb360
-    password: formb360
+    username: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -21,6 +21,12 @@ spring:
 
   jackson:
     default-property-inclusion: non_null
+
+
+app:
+  jwt:
+    secret: UCW6hbV974WMOUohPHFLRQaTRkI7JhEsEpCTyTd3VBo=
+    expiration-ms: 86400000
 
 logging:
   level:
