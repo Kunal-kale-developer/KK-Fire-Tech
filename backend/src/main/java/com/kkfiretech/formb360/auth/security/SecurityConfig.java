@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me").authenticated()
                         // TEMPORARY: baaki dashboard APIs abhi open hain taaki purana kaam na toote.
                         // Jab frontend me login lag jaye, is line ko .authenticated() kar dena.
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

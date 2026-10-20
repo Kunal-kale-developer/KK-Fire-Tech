@@ -38,7 +38,8 @@ public class AuthService {
                 .name(request.getName().trim())
                 .email(email)
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)   // public registration se hamesha USER
+                .role(Role.USER)// public registration se hamesha USER
+                .orgId(1L)
                 .build();
 
         userRepository.save(user);
