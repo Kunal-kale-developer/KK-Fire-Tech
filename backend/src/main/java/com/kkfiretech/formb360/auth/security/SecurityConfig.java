@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/me").authenticated()
+                        .requestMatchers("/error").permitAll()                        .requestMatchers("/api/auth/me").authenticated()
                         // TEMPORARY: baaki dashboard APIs abhi open hain taaki purana kaam na toote.
                         // Jab frontend me login lag jaye, is line ko .authenticated() kar dena.
                         .anyRequest().authenticated()

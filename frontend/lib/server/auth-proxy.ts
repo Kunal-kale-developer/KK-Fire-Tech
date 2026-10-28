@@ -8,7 +8,7 @@ const FALLBACK_MESSAGES: Record<number, string> = {
   409: "Email already registered",
 };
 
-export async function proxyAuth(path: string, payload: unknown) {
+export async function proxyAuth(path: string, payload: unknown, setCookie = true) {
   let res: Response;
   try {
     res = await fetch(`${BACKEND}${path}`, {
@@ -32,6 +32,7 @@ export async function proxyAuth(path: string, payload: unknown) {
 
   const { token, ...user } = data;
   const response = NextResponse.json(user);
+  if (!setCookie) return response;
   response.cookies.set("token", token, {
     httpOnly: true,
     sameSite: "lax",
