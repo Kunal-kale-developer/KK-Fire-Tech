@@ -34,4 +34,7 @@ public class ComplianceCycle {
 
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
+
+    @Column(name = "submitted_on")
+    private LocalDate submittedOn;
 }

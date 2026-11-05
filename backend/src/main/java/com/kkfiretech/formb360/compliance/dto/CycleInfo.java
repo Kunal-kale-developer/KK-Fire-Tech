@@ -9,6 +9,7 @@ public record CycleInfo(Integer year, Short half, LocalDate periodStart,
                         LocalDate periodEnd, LocalDate dueDate, CycleStatus status) {
     public static CycleInfo of(ComplianceCycle c, LocalDate today) {
         return new CycleInfo(c.getYear(), c.getHalf(), c.getPeriodStart(),
-                c.getPeriodEnd(), c.getDueDate(), CycleStatus.of(c.getDueDate(), today));
+                c.getPeriodEnd(), c.getDueDate(),
+                c.getSubmittedOn() != null ? CycleStatus.SUBMITTED : CycleStatus.of(c.getDueDate(), today));
     }
 }

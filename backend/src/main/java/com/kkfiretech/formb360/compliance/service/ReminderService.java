@@ -12,20 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReminderService {
 
-    // Due date se itne din pehle reminder banega
-    private static final Set<Long> REMIND_DAYS = Set.of(30L, 15L, 7L, 1L);
-
     private final ComplianceCycleRepository cycleRepository;
     private final NotificationRepository notificationRepository;
 
-    /** Ek org ke liye reminders banata hai. Dobara chalane pe duplicate nahi banta. */
+    /**
+     * Ek org ke liye reminders banata hai.
+     * Miss hue reminder bhi bante hain (backend band tha to jab chalu ho tab).
+     * Ek building ke liye sirf sabse najdeeki stage banta hai. Duplicate nahi banta.
+     */
     @Transactional
     public int generateForOrg(Long orgId) {
         LocalDate today = LocalDate.now(CycleService.IST);
@@ -37,11 +37,8 @@ public class ReminderService {
             String stage = stageFor(days);
             if (stage == null) continue;
 
-            Long cycleId = cycleRepository
-                    .findByBuildingIdAndYearAndHalf(r.buildingId(), r.year(), r.half())
-                    .map(c -> c.getId())
-                    .orElse(null);
-            if (cycleId == null) continue;
+            if (r.submittedOn() != null) continue; // Form B submit ho chuka, reminder nahi
+            Long cycleId = r.cycleId();
 
             if (notificationRepository.existsByCycleIdAndStage(cycleId, stage)) continue;
 
@@ -60,14 +57,19 @@ public class ReminderService {
         return created;
     }
 
+    /** Abhi ke bache hue dino ke hisaab se kaunsa stage chal raha hai */
     private String stageFor(long days) {
         if (days < 0) return "OVERDUE";
-        if (REMIND_DAYS.contains(days)) return "D" + days;
-        return null;
+        if (days <= 1) return "D1";
+        if (days <= 7) return "D7";
+        if (days <= 15) return "D15";
+        if (days <= 29) return "D30";
+        return null; // 30+ din: abhi reminder ka time nahi aaya
     }
 
     private String messageFor(String building, long days) {
         if (days < 0) return building + ": Form B is overdue by " + Math.abs(days) + " days";
+        if (days == 0) return building + ": Form B is due today";
         if (days == 1) return building + ": Form B is due tomorrow";
         return building + ": Form B is due in " + days + " days";
     }

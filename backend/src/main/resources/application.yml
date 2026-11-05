@@ -33,3 +33,16 @@ app:
 logging:
   level:
     com.kkfiretech.formb360: DEBUG
+
+messaging:
+  enabled: false          # true karne par asli SMS/WhatsApp jayega
+  sms:
+    enabled: false
+    api-key: ""
+    sender-id: ""
+    template-id: ""
+  whatsapp:
+    enabled: false
+    access-token: ""
+    phone-number-id: ""
+    template-name: ""

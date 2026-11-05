@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -37,14 +38,18 @@ public class DashboardService {
                         r.segment(), r.jurisdiction(), r.year(), r.half(),
                         r.periodStart(), r.periodEnd(), r.dueDate(),
                         ChronoUnit.DAYS.between(today, r.dueDate()),
-                        CycleStatus.of(r.dueDate(), today)))
+                        r.submittedOn() != null ? CycleStatus.SUBMITTED : CycleStatus.of(r.dueDate(), today),
+                        r.cycleId(), r.submittedOn()))
+                // Submitted wale sabse neeche, baaki due date ke order me
+                .sorted(Comparator.comparing((DashboardItem i) -> i.status() == CycleStatus.SUBMITTED))
                 .toList();
 
         long overdue = items.stream().filter(i -> i.status() == CycleStatus.OVERDUE).count();
         long dueSoon = items.stream().filter(i -> i.status() == CycleStatus.DUE_SOON).count();
         long upcoming = items.stream().filter(i -> i.status() == CycleStatus.UPCOMING).count();
+        long submitted = items.stream().filter(i -> i.status() == CycleStatus.SUBMITTED).count();
 
         return new DashboardResponse(
-                new DashboardResponse.Counts(items.size(), overdue, dueSoon, upcoming), items);
+                new DashboardResponse.Counts(items.size(), overdue, dueSoon, upcoming, submitted), items);
     }
 }

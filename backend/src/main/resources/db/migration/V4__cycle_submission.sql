@@ -1,0 +1,1 @@
+ALTER TABLE compliance_cycles ADD COLUMN IF NOT EXISTS submitted_on DATE;

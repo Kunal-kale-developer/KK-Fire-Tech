@@ -9,4 +9,6 @@ import java.util.List;
 public interface BuildingUnitRepository extends JpaRepository<BuildingUnit, Long> {
     List<BuildingUnit> findByBuildingIdIn(Collection<Long> buildingIds);
     boolean existsByBuildingIdAndName(Long buildingId, String name);
+
+    void deleteByBuildingId(Long buildingId);
 }

@@ -17,6 +17,7 @@ import java.util.List;
 public class ReminderScheduler {
 
     private final ReminderService reminderService;
+    private final OwnerReminderService ownerReminderService;
     private final EntityManager entityManager;
 
     /** Roz subah 9 baje (IST) */
@@ -38,5 +39,6 @@ public class ReminderScheduler {
         for (Long orgId : orgIds) {
             reminderService.generateForOrg(orgId);
         }
+        ownerReminderService.notifyOwners();
     }
 }

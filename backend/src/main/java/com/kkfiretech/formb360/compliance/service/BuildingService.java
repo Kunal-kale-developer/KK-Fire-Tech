@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.kkfiretech.formb360.compliance.repository.ComplianceCycleRepository;
+import com.kkfiretech.formb360.compliance.repository.NotificationRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,8 @@ public class BuildingService {
     private final BuildingUnitRepository unitRepository;
     private final AgencyRepository agencyRepository;
     private final CycleService cycleService;
+    private final ComplianceCycleRepository cycleRepository;
+    private final NotificationRepository notificationRepository;
     private final CurrentUser currentUser;
 
     @Transactional
@@ -85,5 +89,39 @@ public class BuildingService {
                 .heightM(r.heightM())
                 .build());
         return UnitResponse.of(saved);
+    }
+    @Transactional
+    public BuildingResponse update(Long id, BuildingUpdateRequest r) {
+        Long orgId = currentUser.orgId();
+        ComplianceBuilding b = buildingRepository.findByIdAndOrgId(id, orgId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Building not found"));
+
+        if (r.agencyId() != null && agencyRepository.findByIdAndOrgId(r.agencyId(), orgId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Agency not found");
+        }
+
+        b.setName(r.name().trim());
+        b.setAddress(r.address().trim());
+        b.setSegment(r.segment());
+        b.setJurisdiction(r.jurisdiction());
+        b.setAgencyId(r.agencyId());
+        b.setOwnerName(r.ownerName());
+        b.setOwnerPhone(r.ownerPhone());
+
+        List<UnitResponse> units = unitRepository.findByBuildingIdIn(List.of(id))
+                .stream().map(UnitResponse::of).toList();
+        return BuildingResponse.of(b, units, null);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Long orgId = currentUser.orgId();
+        ComplianceBuilding b = buildingRepository.findByIdAndOrgId(id, orgId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Building not found"));
+
+        notificationRepository.deleteByBuildingId(id);
+        cycleRepository.deleteByBuildingId(id);
+        unitRepository.deleteByBuildingId(id);
+        buildingRepository.delete(b);
     }
 }

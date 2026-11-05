@@ -9,5 +9,6 @@ public record DashboardRow(
         Long buildingId, String buildingName, String address,
         Segment segment, Jurisdiction jurisdiction,
         Integer year, Short half,
-        LocalDate periodStart, LocalDate periodEnd, LocalDate dueDate) {
+        LocalDate periodStart, LocalDate periodEnd, LocalDate dueDate,
+        Long cycleId, LocalDate submittedOn) {
 }

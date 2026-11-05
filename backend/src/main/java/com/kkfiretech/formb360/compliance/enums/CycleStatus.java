@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 public enum CycleStatus {
-    OVERDUE, DUE_SOON, UPCOMING;
+    OVERDUE, DUE_SOON, UPCOMING, SUBMITTED;
 
     public static CycleStatus of(LocalDate dueDate, LocalDate today) {
         if (today.isAfter(dueDate)) return OVERDUE;

@@ -13,10 +13,15 @@ public interface ComplianceCycleRepository extends JpaRepository<ComplianceCycle
 
     Optional<ComplianceCycle> findByBuildingIdAndYearAndHalf(Long buildingId, Integer year, Short half);
 
+    Optional<ComplianceCycle> findByIdAndOrgId(Long id, Long orgId);
+
+    void deleteByBuildingId(Long buildingId);
+
     @Query("""
         select new com.kkfiretech.formb360.compliance.repository.DashboardRow(
             b.id, b.name, b.address, b.segment, b.jurisdiction,
-            c.year, c.half, c.periodStart, c.periodEnd, c.dueDate)
+            c.year, c.half, c.periodStart, c.periodEnd, c.dueDate,
+            c.id, c.submittedOn)
         from ComplianceCycle c, ComplianceBuilding b
         where c.buildingId = b.id
           and c.orgId = :orgId and b.orgId = :orgId

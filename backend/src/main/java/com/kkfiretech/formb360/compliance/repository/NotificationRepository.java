@@ -11,6 +11,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     boolean existsByCycleIdAndStage(Long cycleId, String stage);
 
+    void deleteByCycleId(Long cycleId);
+
+    void deleteByBuildingId(Long buildingId);
+
+    List<Notification> findByOwnerNotifiedFalseAndStageIn(java.util.Collection<String> stages);
+
     List<Notification> findByOrgIdOrderByCreatedAtDesc(Long orgId, Pageable pageable);
 
     long countByOrgIdAndSeenFalse(Long orgId);

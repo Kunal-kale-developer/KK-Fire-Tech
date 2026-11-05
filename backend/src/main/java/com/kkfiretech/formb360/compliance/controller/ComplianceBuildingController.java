@@ -27,6 +27,20 @@ public class ComplianceBuildingController {
         return buildingService.list();
     }
 
+    @PutMapping("/{id}")
+    public BuildingResponse update(@PathVariable Long id,
+                                   @Valid @RequestBody BuildingUpdateRequest request) {
+        return buildingService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        buildingService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
     @PostMapping("/{id}/units")
     public ResponseEntity<UnitResponse> addUnit(@PathVariable Long id,
                                                 @Valid @RequestBody UnitRequest request) {

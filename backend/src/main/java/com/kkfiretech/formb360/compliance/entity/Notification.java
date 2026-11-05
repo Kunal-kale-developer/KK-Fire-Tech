@@ -36,6 +36,10 @@ public class Notification {
     @Column(name = "is_seen", nullable = false)
     private boolean seen;
 
+
+    @Column(name = "owner_notified", nullable = false)
+    private boolean ownerNotified;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

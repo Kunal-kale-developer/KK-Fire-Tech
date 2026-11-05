@@ -33,6 +33,127 @@ function errorText(status: number, json: { message?: string }) {
   return "Something went wrong.";
 }
 
+function EditForm({
+  b,
+  agencies,
+  onDone,
+}: {
+  b: Building;
+  agencies: Agency[];
+  onDone: () => void;
+}) {
+  const [f, setF] = useState({
+    name: b.name,
+    address: b.address,
+    segment: b.segment,
+    jurisdiction: b.jurisdiction,
+    agencyId: b.agencyId ? String(b.agencyId) : "",
+    ownerName: b.ownerName ?? "",
+    ownerPhone: b.ownerPhone ?? "",
+  });
+  const [err, setErr] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  function set(k: string, v: string) {
+    setF((x) => ({ ...x, [k]: v }));
+  }
+
+  async function save() {
+    if (!f.name.trim() || !f.address.trim()) {
+      setErr("Name and address are required");
+      return;
+    }
+    setSaving(true);
+    setErr("");
+    const res = await fetch(`/api/buildings/${b.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: f.name.trim(),
+        address: f.address.trim(),
+        segment: f.segment,
+        jurisdiction: f.jurisdiction,
+        agencyId: f.agencyId ? Number(f.agencyId) : null,
+        ownerName: f.ownerName.trim() || null,
+        ownerPhone: f.ownerPhone.trim() || null,
+      }),
+    });
+    const json = await res.json().catch(() => ({}));
+    setSaving(false);
+    if (!res.ok) {
+      setErr(errorText(res.status, json));
+      return;
+    }
+    onDone();
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <label className={label}>Building name *</label>
+          <input className={input} value={f.name} onChange={(e) => set("name", e.target.value)} />
+        </div>
+        <div>
+          <label className={label}>Address *</label>
+          <input className={input} value={f.address} onChange={(e) => set("address", e.target.value)} />
+        </div>
+        <div>
+          <label className={label}>Segment</label>
+          <select className={input} value={f.segment} onChange={(e) => set("segment", e.target.value)}>
+            {SEGMENTS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={label}>Jurisdiction</label>
+          <select className={input} value={f.jurisdiction} onChange={(e) => set("jurisdiction", e.target.value)}>
+            {JURISDICTIONS.map((j) => (
+              <option key={j} value={j}>{j}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={label}>Owner name</label>
+          <input className={input} value={f.ownerName} onChange={(e) => set("ownerName", e.target.value)} />
+        </div>
+        <div>
+          <label className={label}>Owner phone</label>
+          <input className={input} value={f.ownerPhone} onChange={(e) => set("ownerPhone", e.target.value)} />
+        </div>
+        <div className="md:col-span-2">
+          <label className={label}>Agency</label>
+          <select className={input} value={f.agencyId} onChange={(e) => set("agencyId", e.target.value)}>
+            <option value="">No agency</option>
+            {agencies.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.licenceNo} · {a.signatoryName}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {err && <p className="mt-3 text-sm text-red-600">{err}</p>}
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "Save changes"}
+        </button>
+        <button
+          onClick={onDone}
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-white"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function UnitForm({ buildingId, onAdded }: { buildingId: number; onAdded: () => void }) {
   const [name, setName] = useState("");
   const [height, setHeight] = useState("");
@@ -105,6 +226,8 @@ export default function BuildingsPage() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -146,6 +269,25 @@ export default function BuildingsPage() {
 
   function set(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+    async function removeBuilding(b: Building) {
+    if (
+      !window.confirm(
+        `Delete "${b.name}"? Its units, Form B cycles and reminders will also be deleted. This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    setDeletingId(b.id);
+    const res = await fetch(`/api/buildings/${b.id}`, { method: "DELETE" });
+    setDeletingId(null);
+    if (!res.ok) {
+      setError("Could not delete the building. Please try again.");
+      return;
+    }
+    setError("");
+    load();
   }
 
   async function addBuilding() {
@@ -286,11 +428,35 @@ export default function BuildingsPage() {
                 <p className="text-lg font-medium text-gray-900">{b.name}</p>
                 <p className="text-sm text-gray-500">{b.address}</p>
               </div>
-              <div className="flex gap-2">
+               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">{b.segment}</span>
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">{b.jurisdiction}</span>
+                <button
+                  onClick={() => setEditingId(editingId === b.id ? null : b.id)}
+                  className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-700 hover:border-red-500 hover:text-red-600"
+                >
+                  {editingId === b.id ? "Close" : "Edit"}
+                </button>
+                <button
+                  onClick={() => removeBuilding(b)}
+                  disabled={deletingId === b.id}
+                  className="rounded-lg border border-gray-300 px-3 py-1 text-xs text-red-600 hover:border-red-500 disabled:opacity-50"
+                >
+                  {deletingId === b.id ? "Deleting..." : "Delete"}
+                </button>
               </div>
             </div>
+
+            {editingId === b.id && (
+              <EditForm
+                b={b}
+                agencies={agencies}
+                onDone={() => {
+                  setEditingId(null);
+                  load();
+                }}
+              />
+            )}
 
             {(b.ownerName || b.ownerPhone) && (
               <p className="mt-2 text-sm text-gray-600">

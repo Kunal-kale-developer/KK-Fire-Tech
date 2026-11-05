@@ -11,5 +11,6 @@ public record DashboardItem(
         Segment segment, Jurisdiction jurisdiction,
         Integer year, Short half,
         LocalDate periodStart, LocalDate periodEnd, LocalDate dueDate,
-        long daysToDue, CycleStatus status) {
+        long daysToDue, CycleStatus status,
+        Long cycleId, LocalDate submittedOn) {
 }
